@@ -1,49 +1,75 @@
-"use client"
+"use client";
 
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function SignInPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/signin`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+    // Simulate a simple login check
+    if (!email || !password) {
+      setError("Please enter both email and password.");
+      return;
+    }
 
-      const data = await res.json();
-      if (!res.ok) return setError(data.message || "Sign in failed");
+    // Example mock user
+    const mockUser = {
+      email: "demo@example.com",
+      password: "123456",
+    };
 
-      localStorage.setItem("token", data.token);
+    if (email === mockUser.email && password === mockUser.password) {
+      localStorage.setItem("token", "mock-token-123");
       router.push("/dashboard");
-    } catch (err) {
-      setError("Something went wrong");
+    } else {
+      setError("Invalid credentials. Try demo@example.com / 123456");
     }
   };
 
   return (
     <div className="max-w-md mx-auto p-6 mt-20 bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold mb-6 text-center">Sign In</h1>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
+
+      {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
 
       <form className="space-y-4" onSubmit={handleSubmit}>
-        <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="input" />
-        <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="input" />
-        <button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Sign In</button>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+        >
+          Sign In
+        </button>
       </form>
 
-      <p className="mt-4 text-center">
-        Don’t have an account? <Link href="/signup" className="text-blue-600">Sign Up</Link>
+      <p className="mt-4 text-center text-gray-600">
+        Don’t have an account?{" "}
+        <Link href="/signup" className="text-blue-600 hover:underline">
+          Sign Up
+        </Link>
       </p>
     </div>
   );
